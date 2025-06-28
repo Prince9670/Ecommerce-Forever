@@ -70,7 +70,7 @@ const ShopContextProvider = (props) => {
                     }
                 } catch (error) {
                     console.log(error);
-                }
+                }  
             }
         }
         return totalAmount;
