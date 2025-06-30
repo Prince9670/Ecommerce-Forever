@@ -1,5 +1,5 @@
 import validator from "validator";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 
@@ -18,8 +18,8 @@ const registerUser = async (req, res) => {
     
   try {
     const { name, email, password } = req.body;
-    // check the user already exists
-    const exists = await userModel.findone({ email });
+    // check the user already exists or not
+    const exists = await userModel.findOne({ email });
     if (exists) {
       return res.json({ sucess: false, message: "User already exists" });
     }
@@ -51,10 +51,7 @@ const registerUser = async (req, res) => {
     const user = await newUser.save();
 
     const token = createToken(user._id);
-    res.json({
-      success: true,
-      token,
-    });
+    res.json({success: true, token});
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: "Server error" });
