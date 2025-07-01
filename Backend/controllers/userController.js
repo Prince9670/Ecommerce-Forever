@@ -29,6 +29,7 @@ const registerUser = async (req, res) => {
         success: false,
         message: "Please enter a valid email",
       });
+
     }
     if (password.length < 8) {
       return res.json({
