@@ -61,7 +61,26 @@ const registerUser = async (req, res) => {
 
 // Route for Admin Login
 const adminLogin = async (req, res) => {
-
+    try {
+        const { email, password } = req.body;
+    
+        // Check if the user exists
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }    
+        // Check if the password is correct
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.json({ success: false, message: "Invalid credentials" });
+        }
+        // Create a JWT token
+        const token = createToken(user._id);
+        res.json({ success: true, token });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: "Server error" });
+    }
 };
 
 export { loginUser, registerUser, adminLogin };
