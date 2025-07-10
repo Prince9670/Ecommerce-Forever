@@ -10,36 +10,26 @@ const createToken = (id) => {
 
 // Route for user login
 const loginUser = async (req, res) => {
-    const { email, password } = req.body;
-
-    // Validate email and password
-    if (!validator.isEmail(email) || !password) {
-        return res.json({
-            success: false,
-            message: "Please enter a valid email and password",
-        });
-    }
-
-    try {
-        // Check if user exists
+    try{
+        const { email, password } = req.body;
+        // check the user exists or not
         const user = await userModel.findOne({ email });
         if (!user) {
-            return res.json({ success: false, message: "User not found" });
+            return res.json({ success: false, message: "User does not exist" });
         }
-
-        // Check password
-        const isMatch = await bcrypt.compare(password, user.password);
+        // check the password is correct or not
+        const isMatch = await bcrypt.compare(password, user.password);  
         if (!isMatch) {
-            return res.json({ success: false, message: "Invalid credentials" });
+            const token = createToken(user._id);
+            res.json({ success: true, token });
         }
-
-        // Create token
-        const token = createToken(user._id);
-        res.json({ success: true, token });
+        else {
+            res.json({ success: false, message: "Invalid credentials" });
+        }
     } catch (error) {
         console.error(error);
-        res.json({ success: false, message: "Server error" });
-    }
+        res.json({ success: false, message: error.message });
+  }
 };
 
 // Route for user registration
@@ -84,13 +74,27 @@ const registerUser = async (req, res) => {
     res.json({success: true, token});
   } catch (error) {
     console.error(error);
-    res.json({ success: false, message: "Server error" });
+    res.json({ success: false, message: error.message });
   }
 };
 
+
 // Route for Admin Login
 const adminLogin = async (req, res) => {
-   
+   try{
+     const {email, password} = req.body
+
+     if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD){
+        const token = jwt.sign(email+password,process.env.JWT_SECRET)
+        res.json({sucess:true,token})
+     }else {
+        res.json({sucess:false,message:"Invalid credentials"})
+     }
+
+   } catch (error){
+       console.error(error);
+       res.json({ success: false, message: error.message });
+   }
 };
 
 export { loginUser, registerUser, adminLogin };
